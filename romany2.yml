@@ -1,0 +1,56 @@
+---
+- name: Romany.apache
+  hosts: romany
+  become: yes
+  tasks:
+  - name: Install apache
+    yum:
+      name: httpd
+      state: latest
+  - name: Start apache
+    service:
+      name: httpd
+      enabled: yes
+      state: started
+  - name: install php
+    yum:
+      name: php.x86_64
+      state: latest
+  - name: start php
+    service:
+      name: php-fpm.service
+      enabled: yes
+      state: started
+  - name: Install MySQL
+    yum:
+      name:  mysql-server.x86_64
+      state: latest
+  - name: start mysql
+    service:
+      name: mysqld.service
+      state: started
+      enabled: yes
+  - name: permit the web traffic on port 
+    firewalld:
+      port: 80/tcp
+      permanent: true
+      state: enabled
+  - name: permit the web traffic on port
+    firewalld:
+      port: 443/tcp
+      permanent: true
+      state: enabled
+  - name: restart firewalld
+    service:
+      name: firewalld
+      state: restarted  
+  - name: Copying your php file in the /var/www/html
+    copy:
+        src: /root/ansibleplaybook/index.php
+        dest: /var/www/html/index.php
+  - name: test the webpage/website we have setup
+    uri:
+       url: http://192.168.10.130/index.php
+       status_code: 200
+
+
